@@ -13,7 +13,7 @@ import numpy as np
 
 (train_data, train_labels), (test_data, test_labels) = reuters.load_data(num_words=10000)
 print(train_data.shape, test_labels.shape)
-
+print(train_data)
 # 可以把文本向量转为文本查看
 word_index = reuters.get_word_index()
 reverse_word_index = dict((value, key) for key, value in word_index.items())
@@ -46,9 +46,9 @@ test_labels = to_categorical(test_labels)
 
 # 建立模型,并编译
 model = models.Sequential()
-model.add(layers.Dense(64, activation='relu', input_shape=(10000, )))
-model.add(layers.Dense(64, activation='relu'))
-# model.add(layers.Dense(32, activation='relu'))
+model.add(layers.Dense(1024, activation='sigmoid', input_shape=(10000, )))
+model.add(layers.Dense(512, activation='sigmoid'))
+model.add(layers.Dense(128, activation='sigmoid'))
 model.add(layers.Dense(46, activation='softmax'))
 
 model.compile(optimizer=optimizers.rmsprop(lr=0.001),
@@ -67,7 +67,7 @@ train_labels = train_labels[val_quantity:]
 # 训练模型，监控训练过程
 history = model.fit(x=train_data, y=train_labels,
                     batch_size=256,
-                    epochs=9,
+                    epochs=10,
                     validation_data=(val_data, val_labels))
 
 # 解析模型的情况
