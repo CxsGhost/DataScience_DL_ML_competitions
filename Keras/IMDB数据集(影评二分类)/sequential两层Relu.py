@@ -7,6 +7,7 @@ from keras import models
 from keras import optimizers
 from keras import losses
 from keras import metrics
+from keras import regularizers  # 正则化模块
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -43,8 +44,8 @@ test_labels = np.asarray(test_labels).astype('float32')
 
 # 输入是向量，标签是0,1，relu的全连接激活层表现很好
 model = models.Sequential()
-model.add(layers.Dense(32, activation='relu', input_shape=(10000, )))
-model.add(layers.Dense(32, activation='relu'))
+model.add(layers.Dense(64, kernel_regularizer=regularizers.l2(0.02), activation='relu', input_shape=(10000, )))
+model.add(layers.Dense(64, kernel_regularizer=regularizers.l2(0.02), activation='relu'))
 model.add(layers.Dense(1, activation='sigmoid'))
 
 # 二元分类问题，且输出是概率，那二元交叉熵损失函数是很好的选择。各个参数如果不使用默认，可以自定义
@@ -61,7 +62,7 @@ train_labels = train_labels[10000:]
 
 # 开始训练，并保留训练过程的数据,每epoch都会计算一次损失和正确率
 history = model.fit(x=train_x, y=train_labels,
-                    epochs=3,
+                    epochs=5,
                     batch_size=512,
                     validation_data=(val_x, val_y))
 
