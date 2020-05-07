@@ -25,3 +25,4 @@ plt.show()
 df.plot(kind='hist')  # 直方图
 df.plot(kind='box')  # 箱线图（可以观测离群值）
 plt.show()
+
