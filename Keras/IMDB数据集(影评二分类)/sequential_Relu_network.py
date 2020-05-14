@@ -14,6 +14,7 @@ import numpy as np
 
 # num_words是保留数据中前10000个最常出现的词，这样向量数据不会太大，便于处理
 (train_data, train_labels), (test_data, test_labels) = imdb.load_data(num_words=10000)
+print(max(train_data))
 print(test_data.shape, train_labels.shape)
 print(train_labels)  # <class 'numpy.ndarray'>
 
@@ -23,8 +24,9 @@ print(train_labels[0])
 
 # 下面的代码可以把数字向量转化为单词向量，因为只取了10000词，所以会有缺失，用？标注
 word_index = imdb.get_word_index()
+print(min(word_index.values()))
 reverse_word = dict((value, key) for key, value in word_index.items())
-decode_review = ' '.join([reverse_word.get(i, '?') for i in train_data[0]])
+decode_review = ' '.join([reverse_word.get(i - 3, '?') for i in train_data[0]])
 print(decode_review)
 
 
