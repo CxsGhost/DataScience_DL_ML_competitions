@@ -19,9 +19,9 @@ import copy
 from collections import OrderedDict
 
 # 读取数据到dataframe
-train_data = pd.read_csv("E:/py/科学计算与机器学习/MNIST/CUT_MNIST/mnist_train_0.csv", header=None)
+train_data = pd.read_csv("E:/py/科学计算与机器学习/神经网络编程（塔里克拉希德)/MNIST/CUT_MNIST/mnist_train_0.csv", header=None)
 for i in range(1, 12):
-    part_data = pd.read_csv("E:/py/科学计算与机器学习/MNIST/CUT_MNIST/mnist_train_{}.csv".format(i), header=None)
+    part_data = pd.read_csv("E:/py/科学计算与机器学习/神经网络编程（塔里克拉希德)/MNIST/CUT_MNIST/mnist_train_{}.csv".format(i), header=None)
     train_data = pd.concat([train_data, part_data], axis=0)
 
 # dataframe合并后，索引不会自动合并，需要重新标记
@@ -45,13 +45,13 @@ train_data_targets = data_targets
 train_data_targets = np.transpose(train_data_targets, axes=(1, 0))
 
 # 读取并处理测试数据集
-test_data = pd.read_csv("E:/py/科学计算与机器学习/MNIST/MNIST_all/mnist_test.csv", header=None)
+test_data = pd.read_csv("E:/py/科学计算与机器学习/神经网络编程（塔里克拉希德)/MNIST/MNIST_all/mnist_test.csv", header=None)
 test_data_targets = test_data.iloc[:, 0].values
 test_data_inputs = np.delete(test_data.values, obj=0, axis=1) / 255.0 + 0.01
 test_data_inputs = np.transpose(test_data_inputs, axes=(1, 0))
 
 
-for lr in [0.04]:
+for lr in [0.03]:
     w1 = np.random.normal(loc=0, scale=1 / np.sqrt(784), size=(50, 784))
     w2 = np.random.normal(loc=0, scale=1 / np.sqrt(50), size=(10, 50))
     b1 = np.zeros(shape=(50, 1))
@@ -65,9 +65,9 @@ for lr in [0.04]:
     output_layer = common_layers.SoftmaxWithLoss()
 
     learn_rate = lr
-    for number in range(0, 10000, 27):
-        x = copy.deepcopy(train_data_inputs[:, number:number + 25])
-        y = copy.deepcopy(train_data_targets[:, number:number + 25])
+    for number in range(0, 30000, 32):
+        x = copy.deepcopy(train_data_inputs[:, number:number + 32])
+        y = copy.deepcopy(train_data_targets[:, number:number + 32])
         x = all_layers['input_Affine'].forward_propagation(x, weight=w1, biases_weight=b1)
         x = all_layers['hidden1_sigmoid'].forward_propagation(x)
         x = all_layers['Affine_softmax'].forward_propagation(x, weight=w2, biases_weight=b2)
