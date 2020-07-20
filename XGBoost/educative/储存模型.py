@@ -9,8 +9,8 @@ np.random.shuffle(labels)
 dtrain = xgb.DMatrix(data, label=labels)
 
 param = {
-    'max_depth': 0,
-    'objective': 'binary:logistic',
+'max_depth': 0,
+'objective': 'binary:logistic',
 }
 booster = xgb.train(params=param, dtrain=dtrain, num_boost_round=10)
 
@@ -24,4 +24,7 @@ booster.save_model('model.bin')  # 保存当期训练完的模型
 # 以下是如何加载先前保存的模型
 bst = xgb.Booster()
 bst = bst.load_model('model.bin')
+
+"""
+也可以使用pickle或者joblib来高效保存，详见B站教学"""
 
