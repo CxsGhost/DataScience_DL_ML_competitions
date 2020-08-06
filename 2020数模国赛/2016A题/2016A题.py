@@ -1,10 +1,13 @@
+# 模型框架，其中包含问题一，二，三的求解函数
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+
+# 设定重力加速度
 g = 10
 
 
-# 定义浮标类，及其初始化函数
+# 定义浮标类模型
 class Drogue:
     def __init__(self):
         self.d = 2
@@ -20,7 +23,7 @@ class Drogue:
         self.water_force = None
 
 
-# 定义钢管类，及其初始化函数
+# 定义钢管类模型
 class SteelTube:
     def __init__(self):
         self.l = 1
@@ -34,7 +37,7 @@ class SteelTube:
         self.water_force = None
 
 
-# 定义铁桶类，及其初始化函数
+# 定义铁桶类模型
 class SteelBucket:
     def __init__(self):
         self.l = 1
@@ -49,7 +52,7 @@ class SteelBucket:
         self.water_force = None
 
 
-# 定义锚链单元，及其初始化函数
+# 定义锚链单元类模型
 class ChainUnit:
     def __init__(self, unit_weight, unit_length, unit_diameter = None):
         self.l = unit_length
@@ -61,16 +64,14 @@ class ChainUnit:
         self.unit_species = {0.078: 1, 0.105: 2, 0.12: 3, 0.15: 4, 0.18: 5}
 
 
-# 定义锚类，及其初始化函数
+# 定义锚类模型
 class Anchor:
     def __init__(self):
         self.G = 600 * g
 
 
-# 定义该模型类（该类模型通用框架）
+# 定义总模型类（该类模型框架）
 class Model:
-
-    # 初始化函数为创建模型中各个对象的实例，以及各个外界参数
     def __init__(self):
         self.drogue = Drogue()
         self.tubes = [SteelTube() for _ in range(4)]
@@ -86,7 +87,7 @@ class Model:
         # 用于存放锚链单元
         self.chains = []
 
-    # 问题一求解函数，函数接收参数为该模型的各种参数，例如海水深度，锚链型号等
+    # 问题1、问题2第（1）问的求解函数
     def solve_1(self, chain_length=None, unit_length=None, per_weight=None,
                 water_depth=None, sink_depth=None,
                 wind_velocity=None, globe_weight=None):
@@ -234,7 +235,7 @@ class Model:
             plt.show()
             return 1
 
-    # 问题二第二问的求解函数
+    # 求解问题2第（2）问的预处理函数
     def solve_2_pre(self):
         self.chains.clear()
         for _ in range(210):
@@ -248,6 +249,7 @@ class Model:
                       self.drogue.height) / 4
         self.globe_max_weight = buoyancy_1 + self.bucket.buoyancy + self.tubes[0].buoyancy * 4
 
+    # 问题2第（2）问求解函数
     def solve_2(self, sink_depth=None,  globe_weight=None):
 
         self.globe_G = globe_weight * g
@@ -333,8 +335,9 @@ class Model:
                 print('最后一个锚链单元倾斜角度为：{}\n'.format(self.chains[-2].theta / (np.pi * 2) * 360))
                 return 1
 
-    # 问题三求解函数
+    # 问题3求解辅助函数（当符合条件时输出并返回结果）
     def solve_3_out(self, chain_length, unit_length, water_depth, sink_depth, globe_weight):
+
         # 计算游动区域
         r = self.tubes[0].l * np.cos(self.drogue.theta)
         for i in range(1, 4):
@@ -360,7 +363,7 @@ class Model:
         z_m = self.chains[-2].theta / (np.pi * 2) * 360
         print('\n锚链型号：{}'.format(x_h))
         print('锚链长度：{}'.format(c_d))
-        print('重物球质量：{}'.format(weight))
+        print('重物球质量：{}'.format(globe_weight))
         print('此时计算所得海水深度:{}'.format(w_d))
         print('浮标吃水深度：{}'.format(s_d))
         print('浮标游动区域：{}'.format(r))
@@ -370,8 +373,9 @@ class Model:
         print('第4节钢管的倾斜角：{}'.format(t_4))
         print('钢桶倾斜角度：{}'.format(g_t))
         print('最后一个锚链单元倾斜角度为：{}\n'.format(z_m))
-        return np.array([[x_h, c_d, weight, w_d, s_d, r, t_1, t_2, t_3, t_4, g_t, z_m]])
+        return np.array([[x_h, c_d, globe_weight, w_d, s_d, r, t_1, t_2, t_3, t_4, g_t, z_m]])
 
+    # 问题3方案搜索函数
     def solve_3(self, chain_length=None, unit_length=None, per_weight=None,
                 unit_diameter=None, sink_depth=None, globe_weight=None):
 
@@ -489,11 +493,11 @@ class Model:
         return 0, 0
 
 
-# 实例化模型
+# 调用模型框架，实例化模型，接下来开始调用写好的函数求解
 model = Model()
 
 
-# 求解风速12m/s时
+# 求解问题1，风速12m/s时
 for depth in np.arange(0.001, 2, 0.0001):
     stop = model.solve_1(chain_length=22.05, unit_length=105, per_weight=7,
                          water_depth=18, wind_velocity=12,
@@ -502,7 +506,7 @@ for depth in np.arange(0.001, 2, 0.0001):
         break
 
 
-# 求解风速24m/s时
+# 求解问题1，风速24m/s时
 for depth in np.arange(0.001, 2, 0.00001):
     stop = model.solve_1(chain_length=22.05, unit_length=105, per_weight=7,
                          water_depth=18, wind_velocity=24,
@@ -511,7 +515,7 @@ for depth in np.arange(0.001, 2, 0.00001):
         break
 
 
-# 求解风速36m/s时
+# 求解问题2第（2）问，风速36m/s时
 for depth in np.arange(0.001, 2, 0.0001):
     stop = model.solve_1(chain_length=22.05, unit_length=105, per_weight=7,
                          water_depth=18, wind_velocity=36,
@@ -520,10 +524,9 @@ for depth in np.arange(0.001, 2, 0.0001):
         break
 
 
-# 求解重物球质量范围
+# 求解问题2第（2）问，重物球质量范围，并绘制符合情况下锚链的图像
 model.solve_2_pre()
 
-# 设置字体，防止绘图中文显示乱码，调整长宽比，防止失真
 plt.rcParams['font.sans-serif'] = ['SimHei']
 ax = plt.figure(figsize=(11, 9)).gca()
 ax.set_xticks(np.arange(0, 18, 2))
@@ -573,16 +576,14 @@ for weight in np.arange(1200, model.globe_max_weight, 100):
 plt.savefig('question2.png')
 plt.show()
 
-
-# 求解第三问
-# 将各种类型锚链的参数存入表格
+# 求解问题3，将寻找所有的方案，并生成Excel表格
 unit_species = np.array([[78, 3.2, 0.022788],
                          [105, 7, 0.033704],
                          [120, 12.5, 0.045039],
                          [150, 19.5, 0.056253],
                          [180, 28.12, 0.067552]])
 
-# 计算锚链最短长度
+# 计算锚链最短长度,作为搜索的起始长度
 chain_length_min = 20 - model.drogue.height - 4 * model.tubes[0].l - model.bucket.l
 
 # 用于存放可使用的方案
@@ -598,8 +599,12 @@ for chain in unit_species:
                 if write[0]:
                     project = np.concatenate([project, write[1]], axis=0)
 
-# 将迭代所得方案存入excel
+# 将符合的方案生成Excel
+project = np.delete(project, 0, 0)
 project_excel = pd.DataFrame(project)
+project_excel.columns = ['锚链型号', '锚链长度', '重物球质量', '此时计算海水深度',
+                         '浮标吃水深度', '浮标游动范围', '钢管1斜角', '钢管2斜角',
+                         '钢管3斜角', '钢管4斜角', '钢桶斜角', '最后一节锚链单元斜角']
 writer = pd.ExcelWriter('project.xlsx')
 project_excel.to_excel(writer, 'page_1', float_format='%.5f')
 writer.save()
