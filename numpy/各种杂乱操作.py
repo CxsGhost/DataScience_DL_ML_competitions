@@ -32,7 +32,7 @@ c = a.reshape(2, 2)  # 建立副本
 c[0, 0] = 52
 print(a)
 '_____________________________________'
-arr = np.zeros((2, 3), dtype=np.float32)
+arr = np.zeros(shape=(2, 3), dtype=np.float32)
 arr1 = np.ones((1, 4))
 # 建立只有0或1的数组，括号中的参数是维度
 

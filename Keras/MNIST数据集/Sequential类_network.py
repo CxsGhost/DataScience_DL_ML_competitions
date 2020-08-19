@@ -6,8 +6,6 @@ from keras.utils import to_categorical  # 对标签要进行转化（one-hot)
 
 # 获取内置的mnist数据
 (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
-print(train_images.shape)
-print(test_labels.shape)
 
 # 进行预处理
 train_images = train_images.reshape((60000, 28 * 28))

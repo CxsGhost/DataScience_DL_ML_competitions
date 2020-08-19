@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
-
+plt.imshow()
 # x = np.linspace(0, 10, 1000)
 # y = np.sin(x)*x
 # z = np.cos(x)
