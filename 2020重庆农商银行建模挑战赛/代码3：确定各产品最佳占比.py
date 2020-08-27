@@ -36,3 +36,4 @@ print('活期存款：{}'.format(a1 * b1))
 print('定期存款：{}'.format(a1 * b2))
 print('活期理财：{}'.format(a2 * c1))
 print('定期理财：{}'.format(a2 * c2))
+
