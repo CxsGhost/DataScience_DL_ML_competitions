@@ -2,7 +2,7 @@ import numpy as np
 
 a1 = 0.984262864917498
 a2 = 0.0157371350825009
-in_out_rate = 0.25649856
+in_out_rate = 0.15168754
 
 b1_list = []
 c1_list = []

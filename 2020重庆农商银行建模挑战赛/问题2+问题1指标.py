@@ -2,11 +2,12 @@ import pandas as pd
 import numpy as np
 from scipy.sparse.linalg import eigs
 import matplotlib.pyplot as plt
+import time
 
 print('读取数据...')
 data_3 = None
 try:
-    data_3 = pd.read_csv('03_个人客户流水.csv', header=0, dtype={'交易时间': str})
+    data_3 = pd.read_csv('数据包/03_个人客户流水.csv', header=0, dtype={'交易时间': str})
 except:
     print('读取失败！请将依赖数据：03_个人客户流水.csv 与程序放在同一文件夹下！')
 
@@ -143,11 +144,13 @@ def account_detect(account_, ind_):
 
 
 print('开始计算账户各个信息指标、筛选可疑账户...')
-print('正在处理第000000条账户', end='')
-for ac in range(len(account)):
-    print('\b\b\b\b\b\b\b\b\b%06d条账户' % ac, end='')
+print('正在处理', end='')
+st = time.time()
+for ac in range(500):
     account_detect(account[ac], ac)
 print('处理完成')
+print(time.time() - st)
+
 
 
 # 把各个指标写入Excel并生成
