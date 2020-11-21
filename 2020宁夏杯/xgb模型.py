@@ -1,8 +1,6 @@
 import pandas as pd
 import numpy as np
-import tensorflow.keras as keras
 from sklearn.preprocessing import MinMaxScaler
-import matplotlib.pyplot as plt
 import xgboost as xgb
 
 

@@ -159,7 +159,7 @@ class Model:
                                 np.cos(self.chains[j - 1].theta)) / np.cos(self.chains[j].theta)
 
         # 计算在所给参数下的海水深度
-        water_depth = 0
+        water_depth = np.zeros(shape=(100, 1))
         water_depth += self.drogue.sink_depth
         water_depth += self.tubes[0].l * np.sin(self.drogue.theta)
         for i in range(1, 4):
@@ -169,8 +169,12 @@ class Model:
         for j in range(1, len(self.chains)):
 
             # 锚链会有拖地的情况，故只计算未拖地的长度
-            if self.chains[j - 1].theta > 0:
-                water_depth += self.chains[j].l * np.sin(self.chains[j - 1].theta)
+            # if self.chains[j - 1].theta > 0:
+            #     water_depth += self.chains[j].l * np.sin(self.chains[j - 1].theta)
+            cal = self.chains[j - 1].theta > 0
+            water_depth += self.chains[j].l * np.sin(self.chains[j - 1].theta * cal.astype(np.int))
+
+        return np.abs(water_depth - 18)
 
         # 设定迭代完成的最大误差条件，符合条件再计算游动区域，最后输出结果
         delta = 0.01
@@ -495,6 +499,61 @@ class Model:
 
 # 调用模型框架，实例化模型，接下来开始调用写好的函数求解
 model = Model()
+
+import geatpy as ea
+"""
+该案例展示了一个简单的连续型决策变量最大化目标的单目标优化问题。
+max f = x * np.sin(10 * np.pi * x) + 2.0
+s.t.
+-1 <= x <= 2
+"""
+
+
+class MyProblem(ea.Problem):  # 继承Problem父类
+    def __init__(self):
+        name = 'MyProblem'  # 初始化name（函数名称，可以随意设置）
+        M = 1  # 初始化M（目标维数）
+        maxormins = [1]  # 初始化maxormins（目标最小最大化标记列表，1：最小化该目标；-1：最大化该目标）
+        Dim = 1  # 初始化Dim（决策变量维数）
+        varTypes = [0] * Dim  # 初始化varTypes（决策变量的类型，元素为0表示对应的变量是连续的；1表示是离散的）
+        lb = [0.001]  # 决策变量下界
+        ub = [2]  # 决策变量上界
+        lbin = [1] * Dim  # 决策变量下边界（0表示不包含该变量的下边界，1表示包含）
+        ubin = [0] * Dim  # 决策变量上边界（0表示不包含该变量的上边界，1表示包含）
+        # 调用父类构造方法完成实例化
+        ea.Problem.__init__(self, name, M, maxormins, Dim, varTypes, lb, ub, lbin, ubin)
+
+    def aimFunc(self, pop):  # 目标函数
+        x = pop.Phen  # 得到决策变量矩阵
+        pop.ObjV = model.solve_1(chain_length=22.05, unit_length=105, per_weight=7,
+                                 water_depth=18, wind_velocity=12,
+                                 globe_weight=1200, sink_depth=x)  # 计算目标函数值，赋值给pop种群对象的ObjV属性
+
+
+if __name__ == '__main__':
+    """===============================实例化问题对象==========================="""
+    problem = MyProblem() # 生成问题对象
+    """=================================种群设置==============================="""
+    Encoding = 'BG'       # 编码方式
+    NIND = 100             # 种群规模
+    Field = ea.crtfld(Encoding, problem.varTypes, problem.ranges, problem.borders) # 创建区域描述器
+    population = ea.Population(Encoding, Field, NIND) # 实例化种群对象（此时种群还没被初始化，仅仅是完成种群对象的实例化）
+    """===============================算法参数设置============================="""
+    myAlgorithm = ea.soea_SEGA_templet(problem, population) # 实例化一个算法模板对象
+    myAlgorithm.MAXGEN = 100 # 最大进化代数
+    """==========================调用算法模板进行种群进化======================="""
+    [population, obj_trace, var_trace] = myAlgorithm.run() # 执行算法模板
+    population.save() # 把最后一代种群的信息保存到文件中
+    # 输出结果
+    best_gen = np.argmin(problem.maxormins * obj_trace[:, 1]) # 记录最优种群个体是在哪一代
+    best_ObjV = obj_trace[best_gen, 1]
+    print('最优的目标函数值为：%s'%(best_ObjV))
+    print('最优的控制变量值为：')
+    for i in range(var_trace.shape[1]):
+        print(var_trace[best_gen, i])
+    print('有效进化代数：%s'%(obj_trace.shape[0]))
+    print('最优的一代是第 %s 代'%(best_gen + 1))
+    print('评价次数：%s'%(myAlgorithm.evalsNum))
 
 
 # 求解问题1，风速12m/s时
