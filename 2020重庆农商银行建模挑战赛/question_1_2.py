@@ -1,8 +1,9 @@
 import pandas as pd
 import numpy as np
-from scipy.sparse.linalg import eigs
-import matplotlib.pyplot as plt
+# from scipy.sparse.linalg import eigs
+# import matplotlib.pyplot as plt
 import time
+import sys
 
 print('读取数据...')
 data_3 = None
@@ -144,125 +145,127 @@ def account_detect(account_, ind_):
 
 
 print('开始计算账户各个信息指标、筛选可疑账户...')
-print('正在处理', end='')
 st = time.time()
-for ac in range(500):
+print('正在处理第000000', end='')
+for ac in range(1000):
+    print('\b\b\b\b\b\b{:6d}'.format(ac), end='')
     account_detect(account[ac], ac)
 print('处理完成')
 print(time.time() - st)
+sys.exit(0)
 
 
 
-# 把各个指标写入Excel并生成
-print('用于评价客户信用的指标写入Excel并生成：问题1：客户信用评价指标.xlsx')
-writer = pd.ExcelWriter('问题1：客户信用评价指标.xlsx')
-confidence_data = np.concatenate([[account], [year_in],
-                                  [clear_property_div], [invest_ability],
-                                  [development_ability]], axis=0).T
-confidence_data = pd.DataFrame(confidence_data,
-                               columns=['账户号', '年收入', '净资产比率', '投资能力', '发展能力'])
-confidence_data.to_excel(writer, sheet_name='客户信用评价指标')
-writer.save()
-writer.close()
-
-x = range(len(flow))
-plt.rcParams['font.sans-serif'] = ['SimHei']
-plt.figure(figsize=(10, 8))
-plt.plot(x, flow, color='b', label='各账户资金总流动量')
-plt.ylabel('资金总流动量')
-plt.title('账户资金总流动量分布')
-plt.legend()
-plt.savefig('账户资金总流动量分布.png')
-plt.show()
-
-
-# 整理初步筛选结果，写入Excel生成
-print('处理初步筛选结果...写入Excel并生成： 问题2：洗钱嫌疑初步筛选结果.xlsx')
-writer = pd.ExcelWriter('问题2：洗钱嫌疑初步筛选结果.xlsx')
-big_flow_standard = 500000
-big_flow = flow >= big_flow_standard
-big_flow_account = pd.DataFrame(account[big_flow], columns=['账户号'])
-big_flow_account.to_excel(writer, sheet_name='资金总流动量超标的账户')
-big_flow = big_flow.astype(np.int)
-
-big_day_ck_account = big_day_ck == 1
-big_day_ck_account = pd.DataFrame(account[big_day_ck_account], columns=['账户号'])
-big_day_ck_account.to_excel(writer, sheet_name='突然某日累计存款超过20万元的账户')
-
-big_day_qk_account = big_day_qk == 1
-big_day_qk_account = pd.DataFrame(account[big_day_qk_account], columns=['账户号'])
-big_day_qk_account.to_excel(writer, sheet_name='突然某日累计取款超过20万元的账户')
-
-big_day_zr_account = big_day_zr == 1
-big_day_zr_account = pd.DataFrame(account[big_day_zr_account], columns=['账户号'])
-big_day_zr_account.to_excel(writer, sheet_name='突然某日累计转入超过20万元的账户')
-
-big_day_zc_account = big_day_zc == 1
-big_day_zc_account = pd.DataFrame(account[big_day_zc_account], columns=['账户号'])
-big_day_zc_account.to_excel(writer, sheet_name='突然某日累计转出超过20万元的账户')
-
-writer.save()
-writer.close()
-
-# 筛选结果矩阵化，用于后续计算总得分
-one_hot_data = np.concatenate([[big_day_ck], [big_day_qk], [big_day_zr],
-                               [big_day_zc], [big_flow]], axis=0)
-
-print('层析分析法计算各指标权重...进一步确定账户洗钱可能性')
-
-# 权重决定矩阵
-mat = np.array([[1, 1, 1 / 5, 1 / 5, 1 / 7],
-                [1, 1, 1 / 5, 1 / 5, 1 / 7],
-                [5, 5, 1, 1, 5 / 7],
-                [5, 5, 1, 1, 5 / 7],
-                [7, 7, 7 / 5, 7 / 5, 1]])
-
-
-# 一致性检验
-def isConsist(F):
-    n = np.shape(F)[0]
-    a, b = eigs(F, 1)
-    maxlam = a[0].real
-    CI = (maxlam - n) / (n - 1)
-    RI = np.array([0, 0, 0.52, 0.89, 1.12, 1.26, 1.36,
-                   1.41, 1.46, 1.49, 1.52, 1.54, 1.56, 1.58, 1.59])
-    CR = CI / RI[n-1]
-    if CR < 0.1:
-        return bool(1)
-    else:
-        return bool(0)
-
-
-print('一致性检验：{}'.format(isConsist(mat)))
-
-
-# 根据决定矩阵计算各指标权重
-def cal_weights(input_matrix):
-    input_matrix = np.array(input_matrix)
-    n, n1 = input_matrix.shape
-    assert n == n1, '不是一个方阵'
-    eigenvalues, eigenvectors = np.linalg.eig(input_matrix)
-
-    max_idx = np.argmax(eigenvalues)
-    eigen = eigenvectors[:, max_idx].real
-    eigen = eigen / eigen.sum()
-    return eigen
-
-
-# 计算各指标权重
-action_list = ['存款', '取款', '转入', '转出', '总流动']
-weights = cal_weights(mat)
-weight_dict = dict(zip(action_list, weights))
-for item in weight_dict.items():
-    print('{}的权重为：{}'.format(item[0], item[1]))
-
-
-# 各账户最终得分
-print('计算各账户最终得分...写入Excel并生成：问题2：各账户洗钱嫌疑最终得分.xlsx')
-writer = pd.ExcelWriter('问题2：各账户洗钱嫌疑最终得分.xlsx')
-final_score = np.dot(np.array([weights]), one_hot_data)
-final_data = pd.DataFrame(np.concatenate([[account], final_score], axis=0).T,
-                          columns=['账户号', '最终得分'])
-final_data.to_excel(writer, sheet_name='各账户洗钱嫌疑最终得分')
-writer.save()
-writer.close()
+# # 把各个指标写入Excel并生成
+# print('用于评价客户信用的指标写入Excel并生成：问题1：客户信用评价指标.xlsx')
+# writer = pd.ExcelWriter('问题1：客户信用评价指标.xlsx')
+# confidence_data = np.concatenate([[account], [year_in],
+#                                   [clear_property_div], [invest_ability],
+#                                   [development_ability]], axis=0).T
+# confidence_data = pd.DataFrame(confidence_data,
+#                                columns=['账户号', '年收入', '净资产比率', '投资能力', '发展能力'])
+# confidence_data.to_excel(writer, sheet_name='客户信用评价指标')
+# writer.save()
+# writer.close()
+#
+# x = range(len(flow))
+# plt.rcParams['font.sans-serif'] = ['SimHei']
+# plt.figure(figsize=(10, 8))
+# plt.plot(x, flow, color='b', label='各账户资金总流动量')
+# plt.ylabel('资金总流动量')
+# plt.title('账户资金总流动量分布')
+# plt.legend()
+# plt.savefig('账户资金总流动量分布.png')
+# plt.show()
+#
+#
+# # 整理初步筛选结果，写入Excel生成
+# print('处理初步筛选结果...写入Excel并生成： 问题2：洗钱嫌疑初步筛选结果.xlsx')
+# writer = pd.ExcelWriter('问题2：洗钱嫌疑初步筛选结果.xlsx')
+# big_flow_standard = 500000
+# big_flow = flow >= big_flow_standard
+# big_flow_account = pd.DataFrame(account[big_flow], columns=['账户号'])
+# big_flow_account.to_excel(writer, sheet_name='资金总流动量超标的账户')
+# big_flow = big_flow.astype(np.int)
+#
+# big_day_ck_account = big_day_ck == 1
+# big_day_ck_account = pd.DataFrame(account[big_day_ck_account], columns=['账户号'])
+# big_day_ck_account.to_excel(writer, sheet_name='突然某日累计存款超过20万元的账户')
+#
+# big_day_qk_account = big_day_qk == 1
+# big_day_qk_account = pd.DataFrame(account[big_day_qk_account], columns=['账户号'])
+# big_day_qk_account.to_excel(writer, sheet_name='突然某日累计取款超过20万元的账户')
+#
+# big_day_zr_account = big_day_zr == 1
+# big_day_zr_account = pd.DataFrame(account[big_day_zr_account], columns=['账户号'])
+# big_day_zr_account.to_excel(writer, sheet_name='突然某日累计转入超过20万元的账户')
+#
+# big_day_zc_account = big_day_zc == 1
+# big_day_zc_account = pd.DataFrame(account[big_day_zc_account], columns=['账户号'])
+# big_day_zc_account.to_excel(writer, sheet_name='突然某日累计转出超过20万元的账户')
+#
+# writer.save()
+# writer.close()
+#
+# # 筛选结果矩阵化，用于后续计算总得分
+# one_hot_data = np.concatenate([[big_day_ck], [big_day_qk], [big_day_zr],
+#                                [big_day_zc], [big_flow]], axis=0)
+#
+# print('层析分析法计算各指标权重...进一步确定账户洗钱可能性')
+#
+# # 权重决定矩阵
+# mat = np.array([[1, 1, 1 / 5, 1 / 5, 1 / 7],
+#                 [1, 1, 1 / 5, 1 / 5, 1 / 7],
+#                 [5, 5, 1, 1, 5 / 7],
+#                 [5, 5, 1, 1, 5 / 7],
+#                 [7, 7, 7 / 5, 7 / 5, 1]])
+#
+#
+# # 一致性检验
+# def isConsist(F):
+#     n = np.shape(F)[0]
+#     a, b = eigs(F, 1)
+#     maxlam = a[0].real
+#     CI = (maxlam - n) / (n - 1)
+#     RI = np.array([0, 0, 0.52, 0.89, 1.12, 1.26, 1.36,
+#                    1.41, 1.46, 1.49, 1.52, 1.54, 1.56, 1.58, 1.59])
+#     CR = CI / RI[n-1]
+#     if CR < 0.1:
+#         return bool(1)
+#     else:
+#         return bool(0)
+#
+#
+# print('一致性检验：{}'.format(isConsist(mat)))
+#
+#
+# # 根据决定矩阵计算各指标权重
+# def cal_weights(input_matrix):
+#     input_matrix = np.array(input_matrix)
+#     n, n1 = input_matrix.shape
+#     assert n == n1, '不是一个方阵'
+#     eigenvalues, eigenvectors = np.linalg.eig(input_matrix)
+#
+#     max_idx = np.argmax(eigenvalues)
+#     eigen = eigenvectors[:, max_idx].real
+#     eigen = eigen / eigen.sum()
+#     return eigen
+#
+#
+# # 计算各指标权重
+# action_list = ['存款', '取款', '转入', '转出', '总流动']
+# weights = cal_weights(mat)
+# weight_dict = dict(zip(action_list, weights))
+# for item in weight_dict.items():
+#     print('{}的权重为：{}'.format(item[0], item[1]))
+#
+#
+# # 各账户最终得分
+# print('计算各账户最终得分...写入Excel并生成：问题2：各账户洗钱嫌疑最终得分.xlsx')
+# writer = pd.ExcelWriter('问题2：各账户洗钱嫌疑最终得分.xlsx')
+# final_score = np.dot(np.array([weights]), one_hot_data)
+# final_data = pd.DataFrame(np.concatenate([[account], final_score], axis=0).T,
+#                           columns=['账户号', '最终得分'])
+# final_data.to_excel(writer, sheet_name='各账户洗钱嫌疑最终得分')
+# writer.save()
+# writer.close()

@@ -11,6 +11,9 @@ from keras import optimizers
 from keras import losses
 import matplotlib.pyplot as plt
 
+import keras
+print(keras.__version__)
+
 # 读取数据到numpy
 data_dir = 'E:/py/科学计算与机器学习/Keras/自然语言及序列处理（RNN、LSTM、GRU、1DConv）' \
            '/jean天气时间序列数据集/jena_climate_2009_2016.csv'

@@ -111,24 +111,24 @@ for i in pre_train - pre_train_2:
 print(numb)
 
 # # 解析模型的情况
-# history = history.history
-#
-# loss = history['loss']
-# val_loss = history['val_loss']
-#
-# accuracy = history['categorical_accuracy']
-# val_accuracy = history['val_categorical_accuracy']
-#
-# epoch = range(1, len(loss) + 1)
-#
-# # 绘制loss趋势图
-# ax_loss = plt.figure(figsize=(9, 9)).gca()
-# ax_loss.plot(epoch, loss, color='b', marker='>', linestyle='-', label='Loss')
-# ax_loss.plot(epoch, val_loss, color='r', marker='o', linestyle=':', label='Vla_Loss')
-# ax_loss.set_title('Loss')
-# ax_loss.set_xlabel('epoch')
-# ax_loss.set_ylabel('loss')
-# ax_loss.legend()
+history = history.history
+
+loss = history['loss']
+val_loss = history['val_loss']
+
+accuracy = history['categorical_accuracy']
+val_accuracy = history['val_categorical_accuracy']
+
+epoch = range(1, len(loss) + 1)
+
+# 绘制loss趋势图
+ax_loss = plt.figure(figsize=(9, 9)).gca()
+ax_loss.plot(epoch, loss, color='b', marker='>', linestyle='-', label='Loss')
+ax_loss.plot(epoch, val_loss, color='r', marker='o', linestyle=':', label='Vla_Loss')
+ax_loss.set_title('Loss')
+ax_loss.set_xlabel('epoch')
+ax_loss.set_ylabel('loss')
+ax_loss.legend()
 #
 # # 绘制准确率趋势图
 # ax_acc = plt.figure(figsize=(9, 9)).gca()
