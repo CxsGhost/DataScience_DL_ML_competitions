@@ -9,6 +9,7 @@ print('读取数据...')
 data_3 = None
 try:
     data_3 = pd.read_csv('数据包/03_个人客户流水.csv', header=0, dtype={'交易时间': str})
+    print(data_3)
 except:
     print('读取失败！请将依赖数据：03_个人客户流水.csv 与程序放在同一文件夹下！')
 

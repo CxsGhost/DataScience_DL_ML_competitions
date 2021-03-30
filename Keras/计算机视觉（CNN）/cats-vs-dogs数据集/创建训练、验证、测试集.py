@@ -17,6 +17,7 @@ os.mkdir(base_dir)
 
 # 划分对应的训练测试验证集的目录
 train_dir = os.path.join(base_dir, 'train')
+print(train_dir)
 os.mkdir(train_dir)
 validation_dir = os.path.join(base_dir, 'validation')
 os.mkdir(validation_dir)
