@@ -49,6 +49,7 @@ last_conv_layer = network.get_layer('block5_conv3')  # block5_conv3 (Conv2D)    
 # 计算非洲象输出节点对于最后卷积层的梯度（none，14,14,512）
 grads = K.gradients(african_elephant, last_conv_layer.output)[0]
 
+
 pooled_grads = K.mean(grads, axis=(0, 1, 2))  # 形状为（512，）的向量，每个元素是特征图不同通道的梯度平均大小
 
 # 访问刚刚定义的量，对于给定的输入，特征图的梯度和输出特征图
