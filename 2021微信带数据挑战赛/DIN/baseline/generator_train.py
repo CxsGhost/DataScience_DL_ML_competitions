@@ -102,7 +102,7 @@ def generator(the_data, the_target, batch_size=8):
 
         # 对于batch_size中的用户依次生成数据
         # 用try是因为，可能有未知视频，或者互动、不互动序列为空
-        for u in range(batch_size):
+        for u in range(data.shape[0]):
             user = data[u][0]
             recom_feed = data[u][1]
 

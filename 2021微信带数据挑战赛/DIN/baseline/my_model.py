@@ -32,7 +32,7 @@ def get_model(FEED_INFO_PATH):
     dis_author_input = layers.Input(shape=(None,), dtype='int32', name='dis_author_input')
     recom_author_input = layers.Input(shape=(1,), dtype='int32', name='recom_author_input')
 
-    author_encoder = preprocessing.IntegerLookup(oov_value=-2, mask_value=-1, name='author_lookup')
+    author_encoder = preprocessing.IntegerLookup(oov_token=-2, mask_token=-1, name='author_lookup')
     author_encoder.adapt(author_data.astype(np.int32))
 
     i_author_enco = author_encoder(i_author_input)
@@ -57,7 +57,7 @@ def get_model(FEED_INFO_PATH):
     dis_song_input = layers.Input(shape=(None,), dtype='int32', name='dis_song_input')
     recom_song_input = layers.Input(shape=(1,), dtype='int32', name='recom_song_input')
 
-    song_encoder = preprocessing.IntegerLookup(oov_value=-2, mask_value=-1, name='song_lookup')
+    song_encoder = preprocessing.IntegerLookup(oov_token=-2, mask_token=-1, name='song_lookup')
     song_encoder.adapt(song_data.astype(np.int32))
 
     i_song_enco = song_encoder(i_song_input)
@@ -82,7 +82,7 @@ def get_model(FEED_INFO_PATH):
     dis_singer_input = layers.Input(shape=(None,), dtype='int32', name='dis_singer')
     recom_singer_input = layers.Input(shape=(1,), dtype='int32', name='recom_singer')
 
-    singer_encoder = preprocessing.IntegerLookup(oov_value=-2, mask_value=-1, name='singer_encoder')
+    singer_encoder = preprocessing.IntegerLookup(oov_token=-2, mask_token=-1, name='singer_encoder')
     singer_encoder.adapt(singer_data.astype(np.int32))
 
     i_singer_enco = singer_encoder(i_singer_input)
@@ -107,7 +107,7 @@ def get_model(FEED_INFO_PATH):
     dis_psec_input = layers.Input(shape=(None,), dtype='int32', name='dis_psec_input')
     recom_psec_input = layers.Input(shape=(1,), dtype='int32', name='recom_psec_input')
 
-    psec_encoder = preprocessing.IntegerLookup(oov_value=-2, mask_value=-1, name='psec_encoder')
+    psec_encoder = preprocessing.IntegerLookup(oov_token=-2, mask_token=-1, name='psec_encoder')
     psec_encoder.adapt(videoplaysec_data.astype(np.int32))
 
     i_psec_enco = psec_encoder(i_psec_input)
