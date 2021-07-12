@@ -243,7 +243,7 @@ def get_model(FEED_INFO_PATH):
     # 互动视频attention网络，其与不不互动视频的区别在于，加入了用户行为进行attention打分
     i_action_input = layers.Input(shape=(None, 4), dtype='float32', name='i_action_input')
     i_tile_recom_vec = tile_vec_layer([recom_feed_vec, i_feed_vec])
-    i_subs_vec = subs_vec_layer([i_feed_vec, i_feed_vec])
+    i_subs_vec = subs_vec_layer([i_feed_vec, recom_feed_vec])
     i_concat_vec = layers.Concatenate(name='i_concat_layer')([i_action_input,
                                                               i_feed_vec,
                                                               i_subs_vec,
@@ -259,7 +259,7 @@ def get_model(FEED_INFO_PATH):
 
     # 不互动视频的attention网络
     dis_tile_recom_vec = tile_vec_layer([recom_feed_vec, dis_feed_vec])
-    dis_subs_vec = subs_vec_layer([dis_feed_vec, dis_feed_vec])
+    dis_subs_vec = subs_vec_layer([dis_feed_vec, recom_feed_vec])
     dis_concat_vec = layers.Concatenate(name='dis_concat_layer')([dis_feed_vec,
                                                                   dis_subs_vec,
                                                                   dis_tile_recom_vec])

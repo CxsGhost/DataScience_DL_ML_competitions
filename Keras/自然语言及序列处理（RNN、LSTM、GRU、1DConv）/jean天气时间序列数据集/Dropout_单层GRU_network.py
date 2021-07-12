@@ -69,6 +69,7 @@ train_generator = generator(float_data,
                             max_index=200000,
                             shuffle=True,
                             step=step_)
+print(train_generator)
 val_generator = generator(float_data,
                           delay=delay_,
                           lookback=lookback_,
