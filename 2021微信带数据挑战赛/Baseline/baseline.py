@@ -2,9 +2,13 @@
 
 import os
 import time
+
+import keras.layers
 import numpy as np
 import pandas as pd
+import sklearn.model_selection
 import tensorflow.compat.v1 as tf
+import tensorflow.keras.callbacks
 from tensorflow import feature_column as fc
 from comm import ACTION_LIST, STAGE_END_DAY, FEA_COLUMN_LIST
 from evaluation import uAUC, compute_weighted_score
@@ -270,4 +274,7 @@ def main(argv):
 
 if __name__ == "__main__":
     tf.app.run(main)
-    
+
+sklearn.model_selection.StratifiedKFold
+keras.models.Model.compile
+

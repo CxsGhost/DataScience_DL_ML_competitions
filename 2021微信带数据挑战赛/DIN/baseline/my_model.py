@@ -1,3 +1,4 @@
+import keras.callbacks
 from tensorflow.keras import models
 from tensorflow.keras import layers
 from tensorflow.keras import activations
@@ -304,3 +305,5 @@ def get_model(FEED_INFO_PATH):
                      metrics=[metrics.BinaryAccuracy(),
                               metrics.AUC()])
     return My_Model
+
+keras.callbacks.EarlyStopping
